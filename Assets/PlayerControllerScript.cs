@@ -21,8 +21,8 @@ public class PlayerControllerScript : MonoBehaviour
         //here we assign rb2D to reference the gameObject of this script which in this case is the player and assign its Rigidbody2D to the empty Rigidbody2D container seen above.
         rb2D = gameObject.GetComponent<Rigidbody2D>();
 
-        moveSpeed = 3f;
-        jumpForce = 10f;
+        moveSpeed = 1.5f;
+        jumpForce = 20f;
         isJumping = false;
     }
 
@@ -41,12 +41,39 @@ public class PlayerControllerScript : MonoBehaviour
         //if moveHorizontal is greater than 0.1f move right (|| = OR) if moveHorizontal is less than -0.1f move left.
         if (moveHorizontal > 0.1f || moveHorizontal < -0.1f)
         {
+            //add force to our rb2D, then apply a Vector2 (x, y axis movement) then move the character horizontally multiplied by our moveSpeed, with 0f movement of vertical axis.
+            //then apply ForceMode2D.Impulse which makes our movement instantanious.
             rb2D.AddForce(new Vector2(moveHorizontal * moveSpeed, 0f), ForceMode2D.Impulse);
         }
 
-        if (moveVertical > 0.1f || moveVertical < -0.1f)
+        //if the gameObject is NOT jumping and moveVertical is greater than 0.1f jump up, (&& - both of these conditions need to be true to execute code).
+        if (!isJumping && moveVertical > 0.1f)
         {
+            //add force to our rb2D, then apply a Vector2 (x, y axis movement) with a 0f movement of the horizontal axis, then move our character vertically multiplied by our jumpForce.
+            //then apply ForceMode2D.Impulse which makes our movement instantanious.
             rb2D.AddForce(new Vector2(0f, moveVertical * jumpForce), ForceMode2D.Impulse);
+        }
+    }
+
+    //OnTriggerEnter2D is a premade command within unity that determines whether our collider has collision with another object, which in this case is the "Platform" tag.
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        //if collision occurs with our game object tag, check if it is equal to "Platform" then execute the code within the if statement.
+        if(collision.gameObject.tag == "Platform")
+        {
+            //if the gameObject is triggered by the platform then jumping must be set to false because it is stood on a "Platform".
+            isJumping = false;
+        }
+    }
+
+    //OnTriggerExit2D is a premade command within unity that determines whether our collider has exited collision with another object, which in this case is the "Platform" tag.
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        //if collision no longer occurs with our game object tag, check if it is not equal to "Platform" then execute the code within the if statement.
+        if (collision.gameObject.tag == "Platform")
+        {
+            //if the gameObject is not triggered by the platform then jumping must be set to true because it is no longer stood on a "Platform".
+            isJumping = true;
         }
     }
 
